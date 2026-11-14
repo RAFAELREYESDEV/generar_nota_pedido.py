@@ -38,8 +38,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Configuración del Bot
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+# Configuración del Bot (Prioriza variable de entorno en Railway, fallback automático para prevenir crash)
+FALLBACK_BOT_TOKEN = "9058473536:AAHM284rhV8Js85QLdyzLPwpXC3IiKAhjFk"
+BOT_TOKEN = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip() or FALLBACK_BOT_TOKEN
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "generated_notes")
 RECEPTION_DIR = os.path.join(BASE_DIR, "reception_images")

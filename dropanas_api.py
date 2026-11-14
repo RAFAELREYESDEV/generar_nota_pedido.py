@@ -14,7 +14,8 @@ import ssl
 
 logger = logging.getLogger(__name__)
 
-DROPANAS_API_KEY = os.getenv("DROPANAS_API_KEY", "")
+FALLBACK_DROPANAS_KEY = "live_sk_i9tJdb1OCeZZ3ArVM7YPZhy4FY4lofzPkghmH0gTNJnYUg2RJlgd"
+DROPANAS_API_KEY = (os.getenv("DROPANAS_API_KEY") or "").strip() or FALLBACK_DROPANAS_KEY
 BASE_URL = "https://app.dropanas.com/api/v1"
 SSL_CTX = ssl.create_default_context()
 
