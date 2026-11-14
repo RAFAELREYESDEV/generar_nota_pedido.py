@@ -14,14 +14,15 @@ import ssl
 
 logger = logging.getLogger(__name__)
 
-DROPANAS_API_KEY = os.getenv(
-    "DROPANAS_API_KEY", 
-    "live_sk_i9tJdb1OCeZZ3ArVM7YPZhy4FY4lofzPkghmH0gTNJnYUg2RJlgd"
-)
+DROPANAS_API_KEY = os.getenv("DROPANAS_API_KEY", "")
 BASE_URL = "https://app.dropanas.com/api/v1"
 SSL_CTX = ssl.create_default_context()
 
 def _hacer_peticion(endpoint, method="GET", body=None):
+    if not DROPANAS_API_KEY:
+        logger.error("DROPANAS_API_KEY no está configurada en las variables de entorno de Railway.")
+        return {"error": True, "message": "DROPANAS_API_KEY no configurada."}
+
     url = f"{BASE_URL}{endpoint}"
     headers = {
         "Authorization": f"Bearer {DROPANAS_API_KEY}",

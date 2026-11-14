@@ -39,7 +39,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configuración del Bot
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "9058473536:AAHM284rhV8Js85QLdyzLPwpXC3IiKAhjFk")
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "generated_notes")
 RECEPTION_DIR = os.path.join(BASE_DIR, "reception_images")
@@ -783,7 +783,10 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 def main():
-    logger.info(f"Iniciando Bot de Telegram con token: {BOT_TOKEN[:10]}...")
+    if not BOT_TOKEN:
+        logger.error("FATAL: TELEGRAM_BOT_TOKEN no está configurada en las variables de entorno de Railway.")
+        sys.exit(1)
+    logger.info("Iniciando Bot de Telegram desde variables de entorno de Railway...")
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
