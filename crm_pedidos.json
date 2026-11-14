@@ -14,7 +14,7 @@
     "tasa_bcv": 904.48,
     "codigo_dp": "DP75088",
     "guia_tealca": "PIDELO-EXPRESS",
-    "estado": "6. Entregado y Cobrado (En Conciliación Dropanas)",
+    "estado": "6. Entregado y Cobrado",
     "comprobante_img": ""
   },
   {
@@ -68,7 +68,7 @@
     "tasa_bcv": 904.48,
     "codigo_dp": "DP-CORO",
     "guia_tealca": "85093987",
-    "estado": "5. En Taquilla para Retiro (Corte luz solventado)",
+    "estado": "5. En Taquilla para Retiro",
     "comprobante_img": ""
   },
   {
@@ -86,7 +86,7 @@
     "tasa_bcv": 904.48,
     "codigo_dp": "DP70669",
     "guia_tealca": "85090982",
-    "estado": "5. En Taquilla para Retiro (Confirmó retiro)",
+    "estado": "5. En Taquilla para Retiro",
     "comprobante_img": ""
   },
   {
@@ -212,7 +212,7 @@
     "tasa_bcv": 904.48,
     "codigo_dp": "DP74638",
     "guia_tealca": "85117350",
-    "estado": "4. En Tránsito / Valija",
+    "estado": "3. Montado en Dropanas",
     "comprobante_img": ""
   },
   {
@@ -230,7 +230,7 @@
     "tasa_bcv": 904.48,
     "codigo_dp": "DP74634",
     "guia_tealca": "85117354",
-    "estado": "4. En Tránsito / Valija (Aviso de 24-48h enviado)",
+    "estado": "3. Montado en Dropanas",
     "comprobante_img": ""
   }
 ]

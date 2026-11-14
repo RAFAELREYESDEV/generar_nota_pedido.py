@@ -30,6 +30,7 @@ from telegram.ext import (
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from dolar_api import get_dolar_oficial
 from generar_nota_pedido import generar_nota_pedido
+from dropanas_api import obtener_resumen_dropanas, sincronizar_dropanas_crm
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -180,8 +181,12 @@ async def cmd_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🔹 `/taquilla <cliente o DP>`\n"
         "Genera la alerta de llegada a taquilla Tealca con el monto exacto en bolívares (tasa BCV) y recordatorio de cédula para que el cliente retire de inmediato.\n"
         "👉 *Ejemplo:* `/taquilla Pedro Medina`\n\n"
+        "🔹 `/dropanas`\n"
+        "Consulta en tiempo real la API oficial de Dropanas: pedidos en taquilla, en valija y entregados con un solo clic.\n\n"
+        "🔹 `/sync`\n"
+        "Sincroniza automáticamente los estados y guías de Dropanas API con tu base de datos local.\n\n"
         "🔹 `/dashboard`\n"
-        "Muestra el resumen de pedidos (entregados, en taquilla, en valija), facturación y *días de oxígeno de Meta Ads* antes del próximo corte.\n\n"
+        "Muestra el resumen financiero de pedidos (taquilla, valija, entregados) y *días de oxígeno de Meta Ads*.\n\n"
         "🔹 `/tasa` o `/bcv`\n"
         "Consulta la tasa oficial del día del Banco Central de Venezuela en tiempo real.\n\n"
         "🔹 `/recepcion`\n"
@@ -413,6 +418,63 @@ async def cmd_dashboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "*(Margen de tiempo seguro antes del próximo cobro de tarjeta mientras Dropanas libera fondos)*"
     )
     await update.message.reply_text(msg, parse_mode="Markdown")
+
+async def cmd_dropanas(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🔄 *Consultando API oficial de Dropanas en tiempo real...*", parse_mode="Markdown")
+    res = obtener_resumen_dropanas()
+    if not res or res.get("total_ordenes", 0) == 0:
+        await update.message.reply_text("⚠️ No se pudieron obtener órdenes de Dropanas. Verifica la conexión o API Key.", parse_mode="Markdown")
+        return
+
+    msg = (
+        "📦 *ESTADO EN VIVO DROPANAS (API REST)*\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+    )
+
+    en_oficina = res.get("en_oficina", [])
+    msg += f"🏢 *EN TAQUILLA / LISTOS PARA COBRAR ({len(en_oficina)}):*\n"
+    for o in en_oficina:
+        cli = o["cliente"] or "Cliente"
+        msg += f"  • {cli} (`{o['guia']}`)\n"
+    msg += "\n"
+
+    en_camino = res.get("en_camino", [])
+    msg += f"🚚 *EN VALIJA / CAMINO ({len(en_camino)}):*\n"
+    for o in en_camino:
+        cli = o["cliente"] or "Cliente"
+        msg += f"  • {cli} (`{o['guia']}`)\n"
+    msg += "\n"
+
+    generadas = res.get("generadas", [])
+    if generadas:
+        msg += f"📦 *EN PREPARACIÓN / GENERADAS ({len(generadas)}):*\n"
+        for o in generadas:
+            cli = o["cliente"] or "Cliente"
+            msg += f"  • {cli} (`{o['guia']}`)\n"
+        msg += "\n"
+
+    pagados = res.get("pagados", [])
+    msg += f"🟢 *ENTREGADOS / LIQUIDADOS ({len(pagados)}):*\n"
+    for o in pagados:
+        cli = o["cliente"] or "Cliente"
+        msg += f"  • {cli} (`{o['guia']}`)\n"
+    msg += "\n"
+
+    msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    msg += f"📊 *Total Órdenes Registradas:* `{res.get('total_ordenes')}` pedidos\n"
+    msg += f"💰 *Facturación Bruta:* `${res.get('total_usd', 0):,.2f} USD`\n\n"
+    msg += "💡 *Usa `/sync` para actualizar automáticamente tu base de datos.*"
+
+    await update.message.reply_text(msg, parse_mode="Markdown")
+
+async def cmd_sync(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🔄 *Sincronizando pedidos desde Dropanas API hacia la base de datos...*", parse_mode="Markdown")
+    n = sincronizar_dropanas_crm(CRM_FILE)
+    await update.message.reply_text(
+        f"✅ *¡Sincronización Exitosa!*\n"
+        f"Se sincronizaron `{n}` pedidos en tu CRM con los estados y guías oficiales de Dropanas.",
+        parse_mode="Markdown"
+    )
 
 async def cmd_tasa(update: Update, context: ContextTypes.DEFAULT_TYPE):
     info = get_dolar_oficial()
@@ -744,6 +806,8 @@ def main():
     app.add_handler(CommandHandler("sede", cmd_sede))
     app.add_handler(CommandHandler("guia", cmd_guia))
     app.add_handler(CommandHandler("taquilla", cmd_taquilla))
+    app.add_handler(CommandHandler("dropanas", cmd_dropanas))
+    app.add_handler(CommandHandler("sync", cmd_sync))
     app.add_handler(CommandHandler("dashboard", cmd_dashboard))
     app.add_handler(CommandHandler("tasa", cmd_tasa))
     app.add_handler(CommandHandler("bcv", cmd_tasa))
