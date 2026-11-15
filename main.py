@@ -669,10 +669,26 @@ async def render_and_send_nota(update: Update, context: ContextTypes.DEFAULT_TYP
         out_path=out_path
     )
 
-    # Registrar en CRM
+    # Registrar o actualizar en CRM
     crm = cargar_crm()
-    pedido_existente = next((p for p in crm if p.get("cliente", "").lower() == cliente.lower()), None)
-    if not pedido_existente:
+    pedido_existente = next((p for p in crm if p.get("cliente", "").strip().lower() == cliente.strip().lower() or (p.get("codigo_dropanas") and p.get("codigo_dropanas") == codigo_dp)), None)
+    if pedido_existente:
+        pedido_existente["total_usd"] = total_usd
+        pedido_existente["total_bs"] = total_bs
+        pedido_existente["tasa_bcv"] = tasa
+        pedido_existente["cedula"] = f"V-{cedula}"
+        pedido_existente["telefono"] = telefono
+        pedido_existente["sede_tealca_asignada"] = f"Tealca {sede}"
+        if productos:
+            pedido_existente["combo"] = productos[0][0]
+        if codigo_dp:
+            pedido_existente["codigo_dropanas"] = codigo_dp
+            pedido_existente["codigo_dp"] = codigo_dp
+        if guia and "EN PREPARACIÓN" not in guia:
+            pedido_existente["guia_tealca"] = guia.replace(" / TEALCA", "").strip()
+        pedido_existente["comprobante_img"] = out_path
+        guardar_crm(crm)
+    else:
         nuevo_registro = {
             "id": f"ORD-{int(datetime.now().timestamp())}",
             "fecha": datetime.now().strftime("%d-%m-%Y %I:%M %p"),
@@ -687,6 +703,7 @@ async def render_and_send_nota(update: Update, context: ContextTypes.DEFAULT_TYP
             "total_bs": total_bs,
             "tasa_bcv": tasa,
             "codigo_dp": codigo_dp,
+            "codigo_dropanas": codigo_dp,
             "guia_tealca": guia.replace(" / TEALCA", "").strip() if "EN PREPARACIÓN" not in guia else "",
             "estado": "3. Montado en Dropanas",
             "comprobante_img": out_path
@@ -757,10 +774,15 @@ async def process_fast_nota(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         sede = sede_input
 
     prod_name = parts[4] if len(parts) > 4 else "Combo 3 Pares + Gel Cherry"
+    
+    # Limpieza ultra robusta de total_usd (soporta '$49', '$49.13', '49,13', '$ 49.13', '49 USD')
+    raw_usd = parts[5].replace("$", "").replace("USD", "").replace("usd", "").replace(",", ".").strip() if len(parts) > 5 else ""
     try:
-        total_usd = float(parts[5]) if len(parts) > 5 else 28.99
+        total_usd = float(raw_usd) if raw_usd else 28.99
     except ValueError:
-        total_usd = 28.99
+        import re
+        m = re.search(r"(\d+(?:\.\d+)?)", raw_usd)
+        total_usd = float(m.group(1)) if m else 28.99
 
     guia_raw = parts[6] if len(parts) > 6 else "EN PREPARACIÓN"
     guia = f"{guia_raw} / TEALCA" if "TEALCA" not in guia_raw.upper() else guia_raw
