@@ -244,8 +244,9 @@
     "tasa_bcv": 904.48,
     "codigo_dp": "DP-BALZA",
     "guia_tealca": "85109525",
-    "estado": "4. En Tránsito / Valija",
-    "comprobante_img": ""
+    "estado": "5. En Taquilla para Retiro",
+    "comprobante_img": "",
+    "fecha_taquilla": "15-11-2026 02:08 PM"
   },
   {
     "id": "ORD-85106432",
