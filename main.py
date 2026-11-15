@@ -719,7 +719,7 @@ async def render_and_send_nota(update: Update, context: ContextTypes.DEFAULT_TYP
                 f"👤 *Cliente:* {cliente}\n"
                 f"🪪 *Cédula:* V-{cedula}\n"
                 f"🏢 *Destino:* Tealca {sede}\n"
-                f"💵 *Total:* ${total_usd:.2f} USD (Bs {total_bs:,.2f})\n"
+                f"💵 *Total:* ${total_usd:.2f} USD (Pagadero en Bs a Tasa BCV oficial al retirar)\n"
                 f"📦 *Guía:* `{guia}`"
             ),
             parse_mode="Markdown"
@@ -731,7 +731,7 @@ async def render_and_send_nota(update: Update, context: ContextTypes.DEFAULT_TYP
     primer_nombre = cliente.split()[0]
     wa_msg = (
         f"¡Excelente, {primer_nombre}! Quedó confirmada tu cédula y tu orden asegurada en sistema. 🔒📦\n\n"
-        f"Aquí tienes tu *Comprobante de Despacho* con todos tus datos hacia Tealca {sede} por tus ${total_usd:.2f}. "
+        f"Aquí tienes tu *Comprobante de Despacho* con todos tus datos hacia Tealca {sede} por tus ${total_usd:.2f} USD (cancelas en Bs a tasa BCV oficial o divisas al momento de retirar). "
         f"En cuanto la valija sea despachada te comparto el número de rastreo oficial en vivo. ¡Seguimos en contacto! 🤝"
     )
 

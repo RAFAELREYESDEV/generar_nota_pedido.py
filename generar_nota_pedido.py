@@ -118,8 +118,8 @@ def generar_nota_pedido(
 
     draw.text((margin + 50, total_box_top + 20), "TOTAL A CANCELAR AL RETIRAR:", fill=text_muted, font=f_small)
     draw.text((margin + 50, total_box_top + 45), f"${total_usd:.2f} USD", fill=gold_color, font=f_total_usd)
-    draw.text((margin + 50, total_box_top + 95), f"Equivalente BCV Oficial: Bs {total_bs:,.2f}", fill=text_white, font=f_body_b)
-    draw.text((W - margin - 50, total_box_top + 55), "PAGO EN TAQUILLA\nPago Móvil / Efectivo", fill=text_muted, font=f_small, anchor="ra")
+    draw.text((margin + 50, total_box_top + 95), "Cancelas en Bs a Tasa Oficial BCV del día al retirar", fill=accent_green, font=f_body_b)
+    draw.text((W - margin - 50, total_box_top + 55), "PAGO EN TAQUILLA\nPago Móvil / Divisas", fill=text_muted, font=f_small, anchor="ra")
 
     y = total_box_top + total_box_h + 30
 
